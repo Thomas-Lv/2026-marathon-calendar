@@ -28,10 +28,6 @@ jobs:
 
       - name: Build project
         run: npm run build
-        env:
-          # 如果你有 .env.local 中的 GEMINI_API_KEY，在部署时可能不需要（前端已内联）
-          # 若确实需要，可在 GitHub Secrets 中设置并在此引用
-          # GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
