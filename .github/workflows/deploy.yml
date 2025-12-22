@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]  # 根据你的主分支名调整，比如 master
+    branches: [ main ]  # 如果你的主分支叫 master，请改成 master
 
 jobs:
   deploy:
@@ -14,10 +14,10 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -26,16 +26,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build project
         run: npm run build
+        env:
+          # 如果你有 .env.local 中的 GEMINI_API_KEY，在部署时可能不需要（前端已内联）
+          # 若确实需要，可在 GitHub Secrets 中设置并在此引用
+          # GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist  # 👈 根据你的构建输出目录修改（如 build、public 等）
+          path: ./dist
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
