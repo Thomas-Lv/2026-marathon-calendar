@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]  # 或你用的主分支名，如 master
+    branches: [ main ]  # 根据你的主分支名调整，比如 master
 
 jobs:
   deploy:
@@ -35,7 +35,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist  # 根据你的构建输出目录调整
+          path: ./dist  # 👈 根据你的构建输出目录修改（如 build、public 等）
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
