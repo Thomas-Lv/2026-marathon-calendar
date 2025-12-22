@@ -26,8 +26,6 @@
   <div id="root"></div>
 </body>
   <script>
-    
-import { MarathonEvent, EventCategory } from './types';
 
 const detectType = (name: string) => {
   if (name.includes('半程')) return '半程';
@@ -530,8 +528,7 @@ const RAW_DATA_STR = `
 491. 新疆兵团 | 2026铁门关半程马拉松 | 10月18日 | 新疆生产建设兵团第二师 | A
 492. 新疆兵团 | 2026图木舒克马拉松 | 10月 | 新疆生产建设兵团第三师 | C
 `;
-
-export const RAW_EVENTS: MarathonEvent[] = RAW_DATA_STR
+ const RAW_EVENTS: MarathonEvent[] = RAW_DATA_STR
   .trim()
   .split('\n')
   .map((line) => {
@@ -550,7 +547,7 @@ export const RAW_EVENTS: MarathonEvent[] = RAW_DATA_STR
   })
   .filter((e): e is MarathonEvent => e !== null);
 
-export const groupEventsByDate = (events: MarathonEvent[]): { [key: string]: MarathonEvent[] } => {
+ const groupEventsByDate = (events: MarathonEvent[]): { [key: string]: MarathonEvent[] } => {
   const groups: { [key: string]: MarathonEvent[] } = {};
   events.forEach(event => {
     const dateKey = event.time;
@@ -560,7 +557,7 @@ export const groupEventsByDate = (events: MarathonEvent[]): { [key: string]: Mar
   return groups;
 };
 
-export const sortDates = (a: string, b: string): number => {
+ const sortDates = (a: string, b: string): number => {
   if (a === b) return 0;
   if (a === '待定') return 1;
   if (b === '待定') return -1;
