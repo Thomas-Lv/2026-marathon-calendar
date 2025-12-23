@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { RAW_EVENTS, groupEventsByDate, sortDates } from './constants';
 import { EventCard } from './components/EventCard';
 import { EventDetailModal } from './components/EventDetailModal';
@@ -16,6 +16,8 @@ const App: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(''); // YYYY-MM-DD
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<MarathonEvent | null>(null);
+  
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   const filteredEvents = useMemo(() => {
     return RAW_EVENTS.filter(event => {
@@ -93,7 +95,7 @@ const App: React.FC = () => {
             className="w-full sm:w-auto text-xs font-black text-slate-400 hover:text-red-600 border border-slate-200 px-4 py-2 rounded-xl transition-all hover:bg-slate-50 flex items-center justify-center gap-2"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357-2H15" />
             </svg>
             重置筛选
           </button>
@@ -174,7 +176,7 @@ const App: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-base sm:text-lg font-black text-slate-900 leading-none">2026全国马拉松赛事历</h1>
+                  <h1 className="text-base sm:text-lg font-black text-slate-900 leading-none">2026全国马拉松官方赛事日历</h1>
                   <p className="text-[9px] sm:text-[10px] text-slate-400 mt-1 font-bold flex items-center gap-1">
                     <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-500 rounded-full"></span>
                     同步中国田协 492 场赛事
@@ -221,32 +223,41 @@ const App: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-2 gap-2 shrink-0">
-                {/* Date Picker */}
-                <div className="relative">
+                {/* Fixed Robust Date Picker for PC & Mobile */}
+                <div className="relative h-full min-h-[36px] sm:min-h-[44px]">
+                  <div className={`pointer-events-none flex items-center justify-center gap-2 rounded-xl px-4 py-2 sm:py-2.5 w-full h-full border transition-all ${selectedDate ? 'bg-red-50 text-red-600 border-red-200' : 'bg-slate-100 text-slate-400 border-transparent'}`}>
+                    <svg className={`w-3.5 h-3.5 shrink-0 ${selectedDate ? 'text-red-500' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-[10px] sm:text-xs font-black truncate">
+                      {selectedDate ? selectedDate.split('-').slice(1).join('/') : '选择日期'}
+                    </span>
+                  </div>
+                  {/* Actual visible input but transparent, overlaying the design */}
                   <input
+                    ref={dateInputRef}
                     type="date"
                     value={selectedDate}
                     onChange={(e) => {
                       setSelectedDate(e.target.value);
                       setSelectedMonth('全部');
                     }}
-                    className="w-full px-4 py-2 sm:py-2.5 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-red-500 transition-all outline-none text-xs sm:text-sm font-bold cursor-pointer"
+                    onClick={(e) => {
+                      try {
+                        // Directly triggering on the input element from a user click
+                        (e.target as any).showPicker?.();
+                      } catch (err) {}
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 block"
+                    style={{ colorScheme: 'light' }}
                   />
-                   {!selectedDate && (
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center gap-2 text-slate-400 bg-slate-100 rounded-xl">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-[10px] sm:text-xs">选择日期</span>
-                    </div>
-                  )}
                 </div>
 
                 {/* Category Select */}
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-2 sm:py-2.5 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-red-500 transition-all outline-none text-[10px] sm:text-sm font-bold appearance-none cursor-pointer text-center"
+                  className="w-full px-4 py-2 sm:py-2.5 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-red-500 transition-all outline-none text-[10px] sm:text-sm font-black appearance-none cursor-pointer text-center hover:bg-slate-200"
                 >
                   <option value="All">全部级别</option>
                   <option value="A">A类认证</option>
@@ -303,6 +314,37 @@ const App: React.FC = () => {
           renderEventList()
         )}
       </main>
+
+      {/* Brand Footer Section */}
+      <footer className="bg-[#0a0f1d] text-white pt-16 pb-8 px-4 sm:px-6 lg:px-8 mt-20">
+        <div className="max-w-[1400px] mx-auto flex flex-col items-center text-center">
+          {/* Brand Logo Icon */}
+          <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center mb-8 shadow-2xl shadow-red-900/20">
+            <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          
+          <h2 className="text-2xl sm:text-3xl font-black mb-6 tracking-tight">中国马拉松赛事官方日历</h2>
+          
+          <p className="max-w-2xl text-slate-400 text-sm sm:text-base leading-relaxed mb-16 px-4">
+            数据严格同步自中国田径协会发布的《2026年全国马拉松赛事目录》。<br className="hidden sm:block" />
+            旨在为全国跑友提供便捷、准确的参赛信息查询服务。
+          </p>
+
+          {/* Bottom Bar */}
+          <div className="w-full pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <div>
+              © 2026 MARATHON CALENDAR. 全国 492 场赛事
+            </div>
+            <div className="flex items-center gap-8">
+              <span className="hover:text-red-500 transition-colors cursor-default">实时更新</span>
+              <span className="hover:text-red-500 transition-colors cursor-default">官方认证</span>
+              <span className="hover:text-red-500 transition-colors cursor-default">中国田协</span>
+            </div>
+          </div>
+        </div>
+      </footer>
 
       {/* Floating Scroll Top Button */}
       <button 
